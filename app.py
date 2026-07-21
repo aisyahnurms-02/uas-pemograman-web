@@ -231,7 +231,6 @@ def checkout():
             
     return redirect(url_for("order_menu"))
 
-
 @app.route("/reset")
 def reset():
     user_id = session.get('user_id')
