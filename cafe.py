@@ -1,6 +1,7 @@
 from fpdf import FPDF
 from datetime import datetime
-from base import Menu  # Mengambil Parent Class dari base.py
+from base import Menu   # Mengambil Parent Class dari base.py
+from io import BytesIO
 import os
 import uuid
 
@@ -17,7 +18,7 @@ class Minuman(Menu):
 
 
 # ==========================
-# ENCAPSULATION
+# ENCAPSULATION & OOP
 # ==========================
 class Pelanggan:
     def __init__(self, nama):
@@ -41,27 +42,9 @@ class Pelanggan:
         return self.__pesanan
 
     # =========================================================
-    # CETAK NOTA PDF - VERSI MODERN (STRUK KASIR KAFE KEKINIAN)
+    # CETAK NOTA PDF - VERSI MEMORI (AMAN UNTUK CLOUD & VERCEL)
     # =========================================================
-# Pastikan library fpdf di-import di bagian paling atas file cafe.py
-
-class Pelanggan:
-    def __init__(self, nama):
-        self.__nama = nama
-        self.__pesanan = []
-
-    def get_nama(self):
-        return self.__nama
-
-    def get_pesanan(self):
-        return self.__pesanan
-
-    def tambah_pesanan(self, menu):
-        self.__pesanan.append(menu)
-
-    # --- PASTIKAN INDENTASI/TAB FUNGSI INI MASUK KE DALAM CLASS PELANGGAN ---
-    def cetak_nota_pdf(self, user_id=None):
-        
+    def cetak_nota_pdf(self):
         # 1. Inisialisasi dokumen dengan ukuran struk kasir (lebar 120mm, tinggi dinamis)
         pdf = FPDF(orientation='P', unit='mm', format=(120, 200))
         pdf.add_page()
@@ -166,17 +149,12 @@ class Pelanggan:
         pdf.cell(100, 4, "Barang yang sudah dibeli tidak dapat", ln=1, align="C")
         pdf.cell(100, 4, "ditukar/dikembalikan.", ln=1, align="C")
         
-        # PENAMAAN FILE DENGAN ID UNIK
-        nama_bersih = self.get_nama().replace(' ', '_').lower()
-        if user_id:
-            suffix_id = user_id.split('-')[0]
-            filename = f"nota_{nama_bersih}_{suffix_id}.pdf"
-        else:
-            timestamp = datetime.now().strftime("%H%M%S")
-            filename = f"nota_{nama_bersih}_{timestamp}.pdf"
+        # Render PDF langsung ke BytesIO (Memori)
+        pdf_output = pdf.output(dest='S')
+        if isinstance(pdf_output, str):
+            pdf_output = pdf_output.encode('latin1')
             
-        pdf.output(filename)
-        return filename
+        return BytesIO(pdf_output)
 
 # ==========================
 # INSTANCE DAFTAR MENU (Tema Pastelle Bakery)
