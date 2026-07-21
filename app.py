@@ -202,7 +202,6 @@ def checkout():
         if not pesanan_raw:
             return redirect(url_for("order_menu"))
             
-        # Rekap pesanan untuk ditampilkan di Nota Online
         rekap_pesanan = {}
         for item in pesanan_raw:
             if item.nama in rekap_pesanan:
@@ -230,7 +229,7 @@ def checkout():
         )
             
     return redirect(url_for("order_menu"))
-
+    
 @app.route("/reset")
 def reset():
     user_id = session.get('user_id')
