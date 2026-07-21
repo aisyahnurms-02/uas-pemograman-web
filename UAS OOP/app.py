@@ -19,7 +19,7 @@ session_data = {}
 
 
 # ==========================================
-# FUNGSI KONEKSI DATABASE FILES.IO
+# FUNGSI KONEKSI DATABASE FILES.IO (MySQL)
 # ==========================================
 def get_db_connection():
     return mysql.connector.connect(
