@@ -149,17 +149,21 @@ class Pelanggan:
         pdf.cell(100, 4, "Barang yang sudah dibeli tidak dapat", ln=1, align="C")
         pdf.cell(100, 4, "ditukar/dikembalikan.", ln=1, align="C")
         
-        # PENAMAAN FILE DENGAN ID UNIK (Kompatibel untuk Local & Vercel /tmp)
+        # PENAMAAN FILE DENGAN ID UNIK (Otomatis deteksi Vercel /tmp atau Lokal)
         nama_bersih = self.get_nama().replace(' ', '_').lower()
         if user_id:
             suffix_id = user_id.split('-')[0]
-            filename = f"nota_{nama_bersih}_{suffix_id}.pdf"
+            file_name_only = f"nota_{nama_bersih}_{suffix_id}.pdf"
         else:
             timestamp = datetime.now().strftime("%H%M%S")
-            filename = f"nota_{nama_bersih}_{timestamp}.pdf"
+            file_name_only = f"nota_{nama_bersih}_{timestamp}.pdf"
             
-        # Jika dideploy ke cloud serverless yang ketat, bisa diarahkan ke /tmp/filename
-        # Untuk penggunaan lokal, simpan langsung di folder project:
+        # Pengecekan environment Vercel (/tmp) vs Lokal
+        if os.path.exists('/tmp'):
+            filename = os.path.join('/tmp', file_name_only)
+        else:
+            filename = file_name_only
+            
         pdf.output(filename)
         return filename
 
