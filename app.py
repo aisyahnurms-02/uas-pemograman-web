@@ -1,5 +1,6 @@
-from flask import Flask, request, redirect, url_for, send_file, render_template, session
+from flask import Flask, request, redirect, url_for, render_template, session
 from cafe import Pelanggan, daftar_menu  # Mengimpor class & data dari cafe.py
+from datetime import datetime
 import os
 import uuid
 import mysql.connector
@@ -201,16 +202,31 @@ def checkout():
         if not pesanan_raw:
             return redirect(url_for("order_menu"))
             
-        # Memanggil fungsi cetak PDF berbasis BytesIO (Memori)
-        pdf_buffer = pelanggan.cetak_nota_pdf()
-        nama_bersih = pelanggan.get_nama().replace(' ', '_').lower()
-        filename = f"nota_{nama_bersih}.pdf"
+        # Rekap pesanan untuk ditampilkan di Nota Online
+        rekap_pesanan = {}
+        for item in pesanan_raw:
+            if item.nama in rekap_pesanan:
+                rekap_pesanan[item.nama]['qty'] += 1
+                rekap_pesanan[item.nama]['sub'] += item.harga
+            else:
+                rekap_pesanan[item.nama] = {'qty': 1, 'harga_satuan': item.harga, 'sub': item.harga}
         
-        return send_file(
-            pdf_buffer,
-            as_attachment=True,
-            download_name=filename,
-            mimetype='application/pdf'
+        subtotal = sum(data['sub'] for data in rekap_pesanan.values())
+        pajak = int(subtotal * 0.10)
+        total_akhir = subtotal + pajak
+        
+        no_nota = f"#TRX-{datetime.now().strftime('%Y%m%d%H%M')}"
+        tgl_sekarang = datetime.now().strftime("%d/%m/%Y %H:%M")
+        
+        return render_template(
+            "nota_online.html", 
+            pelanggan=pelanggan, 
+            rekap_pesanan=rekap_pesanan,
+            subtotal=subtotal,
+            pajak=pajak,
+            total_akhir=total_akhir,
+            no_nota=no_nota,
+            tgl=tgl_sekarang
         )
             
     return redirect(url_for("order_menu"))
