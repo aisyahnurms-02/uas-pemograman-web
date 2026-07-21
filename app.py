@@ -196,12 +196,22 @@ def checkout():
     user_id = session.get('user_id')
     if user_id and user_id in session_data:
         pelanggan = session_data[user_id]
+        pesanan_raw = pelanggan.get_pesanan()
         
-        # Memanggil fungsi cetak PDF modern dari class Pelanggan
-        filename = pelanggan.cetak_nota_pdf(user_id=user_id)
+        if not pesanan_raw:
+            return redirect(url_for("order_menu"))
+            
+        # Memanggil fungsi cetak PDF berbasis BytesIO (Memori)
+        pdf_buffer = pelanggan.cetak_nota_pdf()
+        nama_bersih = pelanggan.get_nama().replace(' ', '_').lower()
+        filename = f"nota_{nama_bersih}.pdf"
         
-        if filename and os.path.exists(filename):
-            return send_file(filename, as_attachment=True)
+        return send_file(
+            pdf_buffer,
+            as_attachment=True,
+            download_name=filename,
+            mimetype='application/pdf'
+        )
             
     return redirect(url_for("order_menu"))
 
