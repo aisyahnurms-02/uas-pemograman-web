@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pastelle Cafe | Nota Pembayaran</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        body {
+            background-color: #fdfbf7;
+            font-family: 'Courier Prime', monospace;
+            color: #5a4b3c;
+        }
+        .receipt-card {
+            background: #ffffff;
+            border: 1px dashed #a49688;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            max-width: 400px;
+            margin: 40px auto;
+            padding: 30px;
+        }
+        .btn-custom {
+            border: 1.5px solid #5a4b3c;
+            color: #5a4b3c;
+            border-radius: 50px;
+            font-weight: 700;
+            transition: 0.3s;
+        }
+        .btn-custom:hover {
+            background-color: #5a4b3c;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="receipt-card">
+            <!-- Header Nota -->
+            <div class="text-center mb-3">
+                <h4 class="fw-bold mb-1">KAFE OOP</h4>
+                <p class="small mb-0">Jl. Algoritma No. 404, Yogyakarta</p>
+                <p class="small text-muted">Telp: 0812-3456-7890</p>
+            </div>
+            
+            <hr style="border-top: 1px dashed #5a4b3c;">
+            
+            <!-- Metadata Transaksi -->
+            <div class="small mb-3">
+                <div class="d-flex justify-content-between">
+                    <span>No: {{ no_nota }}</span>
+                    <span>{{ tgl }}</span>
+                </div>
+                <div>Pelanggan: <b>{{ pelanggan.get_nama() }}</b></div>
+            </div>
+
+            <hr style="border-top: 1px dashed #5a4b3c;">
+
+            <!-- Daftar Menu yang Dibeli -->
+            <div class="mb-3">
+                <table class="w-100 small">
+                    <thead>
+                        <tr class="border-bottom">
+                            <th class="pb-1">Menu</th>
+                            <th class="text-center pb-1">Qty</th>
+                            <th class="text-end pb-1">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for nama_menu, data in rekap_pesanan.items() %}
+                        <tr>
+                            <td class="py-1">{{ nama_menu }}</td>
+                            <td class="text-center py-1">{{ data.qty }}</td>
+                            <td class="text-end py-1">Rp {{ "{:,}".format(data.sub).replace(',', '.') }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <hr style="border-top: 1px dashed #5a4b3c;">
+
+            <!-- Total & Pajak -->
+            <div class="small mb-4">
+                <div class="d-flex justify-content-between">
+                    <span>Subtotal</span>
+                    <span>Rp {{ "{:,}".format(subtotal).replace(',', '.') }}</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span>Pajak (10%)</span>
+                    <span>Rp {{ "{:,}".format(pajak).replace(',', '.') }}</span>
+                </div>
+                <div class="d-flex justify-content-between fw-bold fs-6 mt-2 pt-2 border-top">
+                    <span>TOTAL</span>
+                    <span>Rp {{ "{:,}".format(total_akhir).replace(',', '.') }}</span>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="text-center small text-muted mb-4">
+                <p class="mb-1 fw-bold text-dark">Terima Kasih Atas Kunjungan Anda!</p>
+                <span style="font-size: 11px;">Barang yang sudah dibeli tidak dapat ditukar/dikembalikan.</span>
+            </div>
+
+            <!-- Tombol Aksi -->
+            <div class="d-grid gap-2">
+                <a href="/order" class="btn btn-custom btn-sm py-2">PESAN LAGI</a>
+                <a href="/reset" class="btn btn-outline-danger btn-sm py-2 rounded-pill" style="font-size: 13px;">SELESAI / KELUAR</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
