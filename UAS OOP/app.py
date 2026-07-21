@@ -1,5 +1,6 @@
-from flask import Flask, request, redirect, url_for, send_file, render_template, session
+from flask import Flask, request, redirect, url_for, render_template, session
 from cafe import Pelanggan, daftar_menu  # Mengimpor class & data dari cafe.py
+from datetime import datetime
 import os
 import uuid
 import mysql.connector
@@ -196,12 +197,37 @@ def checkout():
     user_id = session.get('user_id')
     if user_id and user_id in session_data:
         pelanggan = session_data[user_id]
+        pesanan_raw = pelanggan.get_pesanan()
         
-        # Memanggil fungsi cetak PDF modern dari class Pelanggan
-        filename = pelanggan.cetak_nota_pdf(user_id=user_id)
+        if not pesanan_raw:
+            return redirect(url_for("order_menu"))
+            
+        # Rekap pesanan untuk nota online
+        rekap_pesanan = {}
+        for item in pesanan_raw:
+            if item.nama in rekap_pesanan:
+                rekap_pesanan[item.nama]['qty'] += 1
+                rekap_pesanan[item.nama]['sub'] += item.harga
+            else:
+                rekap_pesanan[item.nama] = {'qty': 1, 'harga_satuan': item.harga, 'sub': item.harga}
         
-        if filename and os.path.exists(filename):
-            return send_file(filename, as_attachment=True)
+        subtotal = sum(data['sub'] for data in rekap_pesanan.values())
+        pajak = int(subtotal * 0.10)
+        total_akhir = subtotal + pajak
+        
+        no_nota = f"#TRX-{datetime.now().strftime('%Y%m%d%H%M')}"
+        tgl_sekarang = datetime.now().strftime("%d/%m/%Y %H:%M")
+        
+        return render_template(
+            "nota_online.html", 
+            pelanggan=pelanggan, 
+            rekap_pesanan=rekap_pesanan,
+            subtotal=subtotal,
+            pajak=pajak,
+            total_akhir=total_akhir,
+            no_nota=no_nota,
+            tgl=tgl_sekarang
+        )
             
     return redirect(url_for("order_menu"))
 
