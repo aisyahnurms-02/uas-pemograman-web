@@ -38,7 +38,7 @@ class Pelanggan:
 
 
 # ==========================
-# INSTANCE DAFTAR MENU (Tema Pastelle Bakery)
+# INSTANCE DAFTAR MENU 
 # ==========================
 daftar_menu = [
     # Makanan / Roti
